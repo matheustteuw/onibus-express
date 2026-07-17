@@ -10,5 +10,7 @@
     <Project Path="src/Shared/OniBusExpress.Communication/OniBusExpress.Communication.csproj" />
     <Project Path="src/Shared/OniBusExpress.Exceptions/OniBusExpress.Exceptions.csproj" />
   </Folder>
-  <Folder Name="/tests/" />
+  <Folder Name="/tests/">
+    <Project Path="tests/OniBusExpress.Tests/OniBusExpress.Tests.csproj" />
+  </Folder>
 </Solution>
