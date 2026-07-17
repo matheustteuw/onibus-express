@@ -1,0 +1,121 @@
+# OniBus Express
+
+API de venda de passagens rodoviárias (desafio técnico). Permite buscar rotas e viagens, reservar assento, consultar e cancelar reserva.
+
+Este repositório contém apenas o **backend** (.NET). O frontend não foi entregue.
+
+## Como rodar
+
+### Com Docker (recomendado)
+
+Pré-requisito: Docker Desktop instalado e rodando.
+
+```bash
+docker-compose up --build
+```
+
+Sobe dois containers: `db` (SQL Server 2022) e `api`. A API espera o banco ficar saudável (healthcheck), aplica as migrations e popula rotas/viagens de exemplo automaticamente ao iniciar — não precisa rodar nenhum comando extra.
+
+- API: http://localhost:8080
+- Swagger: http://localhost:8080/swagger
+
+### Sem Docker
+
+Pré-requisitos: .NET 8 SDK e SQL Server (ou LocalDB, que já vem com o Visual Studio).
+
+```bash
+# instalar a ferramenta de migrations do EF Core, se ainda não tiver
+dotnet tool install --global dotnet-ef
+
+# aplicar as migrations no banco configurado em appsettings.json
+dotnet ef database update --project src/Backend/OniBusExpress.Infrastructure --startup-project src/Backend/OniBusExpress.API
+
+# rodar a API
+dotnet run --project src/Backend/OniBusExpress.API
+```
+
+A connection string padrão em `appsettings.json` aponta para `(localdb)\MSSQLLocalDB`. Troque para o seu SQL Server local se preferir.
+
+## Tecnologias
+
+- **.NET 8 / ASP.NET Core Web API** — exigência do desafio.
+- **EF Core 8 + SQL Server** — ORM e banco relacional, com migrations versionadas no repositório.
+- **AutoMapper** — mapeamento entre entidades de domínio e os DTOs de request/response, evitando código repetitivo de conversão.
+- **FluentValidation** — validação dos dados de entrada (CPF, campos obrigatórios) de forma declarativa, separada da lógica de negócio.
+- **Swashbuckle (Swagger)** — documentação e exploração interativa dos endpoints.
+- **xUnit + Moq + FluentAssertions** — testes unitários. Moq isola os use cases dos repositórios reais; FluentAssertions deixa as asserções mais legíveis.
+- **Docker + docker-compose** — sobe API e banco com um único comando.
+
+## Arquitetura
+
+Solution dividida em camadas:
+
+```
+src/
+  Backend/
+    OniBusExpress.API             # controllers, filtro de exceção, Program.cs
+    OniBusExpress.Application     # use cases (1 classe por ação), validators, AutoMapper
+    OniBusExpress.Domain          # entidades, interfaces de repositório, regras que não dependem de infra
+    OniBusExpress.Infrastructure  # EF Core, migrations, implementação dos repositórios
+  Shared/
+    OniBusExpress.Communication   # Requests/Responses (contrato da API)
+    OniBusExpress.Exceptions      # exceções de domínio e mensagens de erro
+tests/
+  OniBusExpress.Tests             # testes unitários
+```
+
+Decisões relevantes:
+
+- **Um use case por ação** (`RegisterReservationUseCase`, `CancelReservationUseCase`, etc.), cada um com sua interface. Mantém a lógica de negócio isolada dos controllers e fácil de testar sem subir a API inteira.
+- **Repositórios segregados por responsabilidade** (`IReservationReadOnlyRepository`, `IReservationWriteOnlyRepository`, `IReservationUpdateOnlyRepository`) em vez de um repositório genérico único. Deixa explícito o que cada use case realmente precisa fazer com os dados.
+- **Sem coluna de "assentos disponíveis"** na tabela de viagens. Esse número é sempre calculado a partir de `TotalSeats` menos as reservas ativas, evitando um contador que pode dessincronizar do estado real.
+- **Dois índices únicos filtrados no banco** (`WHERE Status = 1`), não só validação em código:
+  - `(TripId, SeatNumber)` — garante que não existam duas reservas ativas no mesmo assento, mesmo sob concorrência (duas requisições simultâneas tentando o mesmo assento).
+  - `(TripId, PassengerId)` — impede que a mesma pessoa (mesmo CPF) fique com duas reservas ativas na mesma viagem, já que fisicamente ela só pode ocupar um assento por vez. Essa regra não está no enunciado do desafio, foi uma extensão que fez sentido adicionar.
+- **Filtro global de exceções** (`ExceptionFilter`) que converte as exceções de domínio (`NotFoundException`, `ConflictException`, `ErrorOnValidationException`) no status HTTP correto (404, 409, 400), em vez de cada controller tratar isso manualmente.
+- **CPF armazenado sem máscara** (só os 11 dígitos), pra não ter o mesmo CPF gravado de duas formas diferentes no banco.
+
+## O que foi implementado
+
+- Os 6 endpoints pedidos: `GET /rotas`, `GET /viagens`, `GET /viagens/{id}`, `POST /reservas`, `GET /reservas/{codigo}`, `DELETE /reservas/{codigo}`.
+- Todas as regras de negócio do desafio: assento ocupado, viagem já realizada, validação de CPF com dígito verificador, código de reserva único e legível (`ABC-12345`), cancelamento até 2h antes da partida.
+- Regra extra: um mesmo passageiro não pode ter duas reservas ativas na mesma viagem.
+- Seed automático de rotas e viagens ao iniciar a aplicação (banco vazio), para dar dados de teste sem precisar de um endpoint de cadastro de rota/viagem (o desafio não pede isso).
+- Testes unitários dos 4 pontos pedidos no desafio.
+- Docker Compose com API + SQL Server + migration automática.
+
+## O que ficou de fora
+
+- Frontend.
+- Autenticação/autorização (não fazia parte do escopo pedido).
+- Testes de integração com banco real (SQLite in-memory ou TestContainers). Optei por testes unitários com repositórios mockados, que já cobrem os 4 pontos pedidos pelo desafio; testes de integração seriam o próximo passo natural.
+- Cadastro de rotas/viagens via API (o desafio só pede leitura desses recursos — populei via seed).
+- Paginação em `GET /viagens` (hoje retorna todos os resultados da busca).
+
+## Como rodar os testes
+
+```bash
+dotnet test
+```
+
+Cobre: validação de CPF (formato e dígito verificador), regra de assento já ocupado, regra de cancelamento dentro do prazo, e geração de código de reserva único (incluindo o retry quando o código gerado já existe).
+
+## Endpoints
+
+Documentação interativa via Swagger em `/swagger` (só ativo em ambiente Development, que é o padrão tanto local quanto no Docker Compose).
+
+| Método | Rota | Descrição |
+|---|---|---|
+| GET | `/rotas` | Lista todas as rotas |
+| GET | `/viagens?origin=&destination=&departureDate=` | Busca viagens por origem, destino e data |
+| GET | `/viagens/{id}` | Detalhes de uma viagem, com assentos livres/ocupados |
+| POST | `/reservas` | Cria uma reserva |
+| GET | `/reservas/{codigo}` | Consulta uma reserva pelo código |
+| DELETE | `/reservas/{codigo}` | Cancela uma reserva |
+
+## Pontos de melhoria com mais tempo
+
+- Testes de integração batendo no banco de verdade (TestContainers), principalmente pra validar os índices únicos filtrados sob concorrência real — hoje essa proteção é garantida pelo banco, mas não tem um teste automatizado provando isso.
+- Paginação e ordenação em `GET /viagens`.
+- Endpoint de cadastro de rotas/viagens, caso o sistema precise ser administrado sem acesso direto ao banco.
+- Observabilidade (logging estruturado, health check endpoint dedicado).
