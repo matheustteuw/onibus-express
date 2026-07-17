@@ -1,6 +1,6 @@
 # OniBus Express
 
-<img width="1911" height="701" alt="image" src="https://github.com/user-attachments/assets/a50a0175-acea-4d25-a42c-97c5e43cfc20" />
+<img width="942" height="449" alt="image" src="https://github.com/user-attachments/assets/c178ee3e-eb44-449a-bec9-39e39e466bf4" />
 
 API de venda de passagens rodoviárias (desafio técnico). Permite buscar rotas e viagens, reservar assento, consultar e cancelar reserva.
 
