@@ -15,11 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
-    <Folder Include="Filters\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\Shared\OniBusExpress.Communication\OniBusExpress.Communication.csproj" />
     <ProjectReference Include="..\..\Shared\OniBusExpress.Exceptions\OniBusExpress.Exceptions.csproj" />
     <ProjectReference Include="..\OniBusExpress.Application\OniBusExpress.Application.csproj" />

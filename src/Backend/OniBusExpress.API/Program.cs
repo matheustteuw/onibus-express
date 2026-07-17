@@ -1,6 +1,9 @@
+using Microsoft.EntityFrameworkCore;
 using OniBusExpress.API.Filters;
 using OniBusExpress.Application;
 using OniBusExpress.Infrastructure;
+using OniBusExpress.Infrastructure.DataAccess;
+using OniBusExpress.Infrastructure.DataAccess.Seed;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +18,14 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<OniBusExpressDbContext>();
+
+    await dbContext.Database.MigrateAsync();
+    await DatabaseSeeder.SeedAsync(dbContext);
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
