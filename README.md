@@ -1,6 +1,8 @@
 # OniBus Express
 
-Sistema de venda de passagens rodoviárias (desafio técnico). Permite buscar rotas e viagens, escolher assento, reservar, consultar e cancelar uma reserva.
+<img width="942" height="449" alt="image" src="https://github.com/user-attachments/assets/c178ee3e-eb44-449a-bec9-39e39e466bf4" />
+
+API de venda de passagens rodoviárias (desafio técnico). Permite buscar rotas e viagens, reservar assento, consultar e cancelar reserva.
 
 Backend em .NET e frontend em React, no mesmo repositório.
 
