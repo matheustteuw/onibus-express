@@ -8,7 +8,7 @@ Backend em .NET e frontend em React, no mesmo repositório.
 
 ## Como rodar
 
-### Backend, com Docker (recomendado)
+### Com Docker (recomendado)
 
 Pré-requisito: Docker Desktop instalado e rodando.
 
@@ -16,8 +16,9 @@ Pré-requisito: Docker Desktop instalado e rodando.
 docker-compose up --build
 ```
 
-Sobe dois containers: `db` (SQL Server 2022) e `api`. A API espera o banco ficar saudável (healthcheck), aplica as migrations e popula rotas/viagens de exemplo automaticamente ao iniciar — não precisa rodar nenhum comando extra.
+Sobe os três containers: `db` (SQL Server 2022), `api` e `web` (frontend servido por Nginx). A API espera o banco ficar saudável (healthcheck), aplica as migrations e popula rotas/viagens de exemplo automaticamente ao iniciar — não precisa rodar nenhum comando extra.
 
+- App: http://localhost:3000
 - API: http://localhost:8080
 - Swagger: http://localhost:8080/swagger
 
@@ -52,8 +53,6 @@ npm run dev
 
 O frontend consome a API via a variável `VITE_API_BASE_URL` (arquivo `.env`, já configurada para `http://localhost:8080`). Precisa da API rodando (com ou sem Docker) para funcionar de verdade.
 
-Empacotamento em Docker (Nginx) ainda não foi feito — ver "O que ficou de fora".
-
 ## Tecnologias
 
 ### Backend
@@ -64,7 +63,7 @@ Empacotamento em Docker (Nginx) ainda não foi feito — ver "O que ficou de for
 - **FluentValidation** — validação dos dados de entrada (CPF, campos obrigatórios) de forma declarativa, separada da lógica de negócio.
 - **Swashbuckle (Swagger)** — documentação e exploração interativa dos endpoints.
 - **xUnit + Moq + FluentAssertions** — testes unitários. Moq isola os use cases dos repositórios reais; FluentAssertions deixa as asserções mais legíveis.
-- **Docker + docker-compose** — sobe API e banco com um único comando.
+- **Docker + docker-compose** — sobe API, banco e frontend com um único comando.
 
 ### Frontend
 
@@ -73,6 +72,7 @@ Empacotamento em Docker (Nginx) ainda não foi feito — ver "O que ficou de for
 - **Zustand** — guarda a viagem, o assento e o código da reserva enquanto o usuário navega entre as telas. Mais direto que Context API + reducer para esse volume de estado compartilhado.
 - **CSS Modules** — estilos isolados por componente, sem dependência de biblioteca de UI.
 - **Vitest + React Testing Library** — mesmo runner do bundler (Vite), evita configuração extra de transform que o Jest exigiria.
+- **Nginx** — serve os arquivos estáticos do build de produção dentro do container.
 
 ## Arquitetura
 
@@ -93,6 +93,8 @@ src/
       src/services                # cliente HTTP e chamadas à API
       src/store                   # estado compartilhado do fluxo de compra (Zustand)
       src/types                   # tipos espelhando os DTOs do backend
+      src/__tests__               # testes (Vitest + React Testing Library)
+      Dockerfile                  # build de produção servido por Nginx
 tests/
   OniBusExpress.Tests             # testes unitários do backend
 ```
@@ -114,6 +116,7 @@ tests/
 - **Fluxo guiado por rotas** (`/`, `/viagens/:id/assentos`, `/viagens/:id/passageiro`, `/confirmacao`, `/reservas/consulta`) em vez de um wizard controlado só por estado interno. Cada tela é uma URL navegável.
 - **Validação de CPF duplicada no frontend** (mesmo algoritmo do backend, em `utils/cpf.ts`). O backend continua sendo a fonte da verdade — a validação no frontend é só para dar feedback imediato ao usuário, sem esperar o round-trip da API.
 - Telas que dependem de estado do fluxo (seleção de assento, dados do passageiro, confirmação) redirecionam para a busca se acessadas diretamente sem uma viagem selecionada.
+- **Nginx com fallback para `index.html`** (`try_files $uri /index.html`) no container de produção, necessário porque as rotas do React Router (ex: `/reservas/consulta`) não existem como arquivos reais — sem isso, um recarregamento de página nessas rotas resultaria em 404.
 
 ## O que foi implementado
 
@@ -132,12 +135,13 @@ Frontend:
 - Tela 2 — seleção de assento, com mapa visual (livre/ocupado/selecionado) e bloqueio de assentos já ocupados.
 - Tela 3 — dados do passageiro com validação (nome, CPF, e-mail), resumo da compra e tela de sucesso com o código da reserva.
 - Tela 4 (bônus) — consulta de reserva por código, com opção de cancelar.
+- Testes dos 3 pontos pedidos no desafio (busca, mapa de assentos, validação do formulário).
+- Docker (Nginx) servindo o build de produção, integrado ao `docker-compose.yml` junto com API e banco.
 
 ## O que ficou de fora
 
 - Autenticação/autorização (não fazia parte do escopo pedido).
 - Testes de integração com banco real (SQLite in-memory ou TestContainers) no backend. Optei por testes unitários com repositórios mockados, que já cobrem os 4 pontos pedidos pelo desafio.
-- **Docker do frontend** (Nginx servindo o build) e a integração dele no `docker-compose.yml` — ainda não feito. Hoje o frontend só roda via `npm run dev`.
 - Cadastro de rotas/viagens via API (o desafio só pede leitura desses recursos — populei via seed).
 - Paginação em `GET /viagens` (hoje retorna todos os resultados da busca).
 
@@ -175,8 +179,6 @@ Documentação interativa via Swagger em `/swagger` (só ativo em ambiente Devel
 
 ## Pontos de melhoria com mais tempo
 
-- Testes de integração do backend com banco real (TestContainers).
-- Docker do frontend e `docker-compose.yml` unificado subindo API + banco + frontend com um único comando.
 - Paginação e ordenação em `GET /viagens`.
 - Endpoint de cadastro de rotas/viagens, caso o sistema precise ser administrado sem acesso direto ao banco.
 - Observabilidade (logging estruturado, health check endpoint dedicado).

@@ -31,5 +31,15 @@ services:
       db:
         condition: service_healthy
 
+  web:
+    build:
+      context: ./src/Frontend/onibus-express-web
+      dockerfile: Dockerfile
+    container_name: onibus-express-web
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+
 volumes:
   onibus-express-db-data:
