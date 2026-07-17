@@ -1,0 +1,6 @@
+@OniBusExpress.API_HostAddress = http://localhost:5149
+
+GET {{OniBusExpress.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

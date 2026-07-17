@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Backend/">
+    <Project Path="src/Backend/OniBusExpress.API/OniBusExpress.API.csproj" />
+    <Project Path="src/Backend/OniBusExpress.Application/OniBusExpress.Application.csproj" />
+    <Project Path="src/Backend/OniBusExpress.Domain/OniBusExpress.Domain.csproj" />
+    <Project Path="src/Backend/OniBusExpress.Infrastructure/OniBusExpress.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Shared/">
+    <Project Path="src/Shared/OniBusExpress.Communication/OniBusExpress.Communication.csproj" />
+    <Project Path="src/Shared/OniBusExpress.Exceptions/OniBusExpress.Exceptions.csproj" />
+  </Folder>
+  <Folder Name="/tests/" />
+</Solution>
