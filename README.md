@@ -179,6 +179,7 @@ Documentação interativa via Swagger em `/swagger` (só ativo em ambiente Devel
 
 ## Pontos de melhoria com mais tempo
 
+- Envio de e-mail para o usuário que realizou a reserva, com o código e detalhes da viagem.
 - Paginação e ordenação em `GET /viagens`.
 - Endpoint de cadastro de rotas/viagens, caso o sistema precise ser administrado sem acesso direto ao banco.
 - Observabilidade (logging estruturado, health check endpoint dedicado).
