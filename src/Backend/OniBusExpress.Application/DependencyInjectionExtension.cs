@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using OniBusExpress.Application.Services.AutoMapper;
 using OniBusExpress.Application.UseCases.Reservation.Cancel;
-using OniBusExpress.Application.UseCases.Reservation.GetById;
+using OniBusExpress.Application.UseCases.Reservation.GetByCode;
 using OniBusExpress.Application.UseCases.Reservation.Register;
 using OniBusExpress.Application.UseCases.Route.GetAll;
 using OniBusExpress.Application.UseCases.Trip.GetById;
@@ -31,7 +31,7 @@ namespace OniBusExpress.Application
             services.AddScoped<ISearchTripsUseCase, SearchTripsUseCase>();
             services.AddScoped<IGetTripByIdUseCase, GetTripByIdUseCase>();
             services.AddScoped<IRegisterReservationUseCase, RegisterReservationUseCase>();
-            services.AddScoped<IGetReservationByIdUseCase, GetReservationByIdUseCase>();
+            services.AddScoped<IGetReservationByCodeUseCase, GetReservationByCodeUseCase>();
             services.AddScoped<ICancelReservationUseCase, CancelReservationUseCase>();
         }
     }

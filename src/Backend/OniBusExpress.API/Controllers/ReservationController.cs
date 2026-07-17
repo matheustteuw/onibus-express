@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using OniBusExpress.Application.UseCases.Reservation.Cancel;
-using OniBusExpress.Application.UseCases.Reservation.GetById;
+using OniBusExpress.Application.UseCases.Reservation.GetByCode;
 using OniBusExpress.Application.UseCases.Reservation.Register;
 using OniBusExpress.Communication.Requests;
 using OniBusExpress.Communication.Responses;
@@ -24,27 +24,27 @@ namespace OniBusExpress.API.Controllers
         }
 
         [HttpGet]
-        [Route("{id}")]
+        [Route("{code}")]
         [ProducesResponseType(typeof(ResponseReservationJson), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ResponseErrorJson), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetById(
-            [FromServices] IGetReservationByIdUseCase useCase,
-            [FromRoute] string id)
+        public async Task<IActionResult> GetByCode(
+            [FromServices] IGetReservationByCodeUseCase useCase,
+            [FromRoute] string code)
         {
-            var reservation = await useCase.Execute(id);
+            var reservation = await useCase.Execute(code);
 
             return Ok(reservation);
         }
 
         [HttpDelete]
-        [Route("{id}")]
+        [Route("{code}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ResponseErrorJson), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Cancel(
             [FromServices] ICancelReservationUseCase useCase,
-            [FromRoute] string id)
+            [FromRoute] string code)
         {
-            await useCase.Execute(id);
+            await useCase.Execute(code);
 
             return NoContent();
         }

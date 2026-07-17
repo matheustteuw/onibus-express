@@ -4,14 +4,14 @@ using OniBusExpress.Domain.Repositories.Reservation;
 using OniBusExpress.Exceptions;
 using OniBusExpress.Exceptions.ExceptionsBase;
 
-namespace OniBusExpress.Application.UseCases.Reservation.GetById
+namespace OniBusExpress.Application.UseCases.Reservation.GetByCode
 {
-    public class GetReservationByIdUseCase : IGetReservationByIdUseCase
+    public class GetReservationByCodeUseCase : IGetReservationByCodeUseCase
     {
         private readonly IReservationReadOnlyRepository _repository;
         private readonly IMapper _mapper;
 
-        public GetReservationByIdUseCase(IReservationReadOnlyRepository repository, IMapper mapper)
+        public GetReservationByCodeUseCase(IReservationReadOnlyRepository repository, IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;
