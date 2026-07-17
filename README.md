@@ -2,8 +2,6 @@
 
 API de venda de passagens rodoviárias (desafio técnico). Permite buscar rotas e viagens, reservar assento, consultar e cancelar reserva.
 
-Este repositório contém apenas o **backend** (.NET). O frontend não foi entregue.
-
 ## Como rodar
 
 ### Com Docker (recomendado)
@@ -86,7 +84,6 @@ Decisões relevantes:
 
 ## O que ficou de fora
 
-- Frontend.
 - Autenticação/autorização (não fazia parte do escopo pedido).
 - Testes de integração com banco real (SQLite in-memory ou TestContainers). Optei por testes unitários com repositórios mockados, que já cobrem os 4 pontos pedidos pelo desafio; testes de integração seriam o próximo passo natural.
 - Cadastro de rotas/viagens via API (o desafio só pede leitura desses recursos — populei via seed).
