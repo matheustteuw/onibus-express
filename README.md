@@ -16,7 +16,7 @@ Pré-requisito: Docker Desktop instalado e rodando.
 docker-compose up --build
 ```
 
-Sobe os três containers: `db` (SQL Server 2022), `api` e `web` (frontend servido por Nginx). A API espera o banco ficar saudável (healthcheck), aplica as migrations e popula rotas/viagens de exemplo automaticamente ao iniciar — não precisa rodar nenhum comando extra.
+Sobe os três containers: `db` (SQL Server 2022), `api` e `web` (frontend servido por Nginx). A API espera o banco ficar saudável (healthcheck), aplica as migrations e popula rotas/viagens de exemplo automaticamente ao iniciar. Não precisa rodar nenhum comando extra.
 
 - App: http://localhost:3000
 - API: http://localhost:8080
@@ -37,7 +37,7 @@ dotnet ef database update --project src/Backend/OniBusExpress.Infrastructure --s
 dotnet run --project src/Backend/OniBusExpress.API
 ```
 
-A connection string padrão em `appsettings.json` aponta para `(localdb)\MSSQLLocalDB`. Troque para o seu SQL Server local se preferir.
+Ajuste a connection string em `appsettings.json` para o seu SQL Server local.
 
 ### Frontend
 
@@ -114,9 +114,9 @@ tests/
 ### Decisões do frontend
 
 - **Fluxo guiado por rotas** (`/`, `/viagens/:id/assentos`, `/viagens/:id/passageiro`, `/confirmacao`, `/reservas/consulta`) em vez de um wizard controlado só por estado interno. Cada tela é uma URL navegável.
-- **Validação de CPF duplicada no frontend** (mesmo algoritmo do backend, em `utils/cpf.ts`). O backend continua sendo a fonte da verdade — a validação no frontend é só para dar feedback imediato ao usuário, sem esperar o round-trip da API.
+- **Validação de CPF duplicada no frontend** (mesmo algoritmo do backend, em `utils/cpf.ts`). O backend continua sendo a fonte da verdade. A validação no frontend é só para dar feedback imediato ao usuário, sem esperar o round-trip da API.
 - Telas que dependem de estado do fluxo (seleção de assento, dados do passageiro, confirmação) redirecionam para a busca se acessadas diretamente sem uma viagem selecionada.
-- **Nginx com fallback para `index.html`** (`try_files $uri /index.html`) no container de produção, necessário porque as rotas do React Router (ex: `/reservas/consulta`) não existem como arquivos reais — sem isso, um recarregamento de página nessas rotas resultaria em 404.
+- **Nginx com fallback para `index.html`** (`try_files $uri /index.html`) no container de produção, necessário porque as rotas do React Router (ex: `/reservas/consulta`) não existem como arquivos reais. Sem isso, um recarregamento de página nessas rotas resultaria em 404.
 
 ## O que foi implementado
 
@@ -142,7 +142,7 @@ Frontend:
 
 - Autenticação/autorização (não fazia parte do escopo pedido).
 - Testes de integração com banco real (SQLite in-memory ou TestContainers) no backend. Optei por testes unitários com repositórios mockados, que já cobrem os 4 pontos pedidos pelo desafio.
-- Cadastro de rotas/viagens via API (o desafio só pede leitura desses recursos — populei via seed).
+- Cadastro de rotas/viagens via API (o desafio só pede leitura desses recursos, populei via seed).
 - Paginação em `GET /viagens` (hoje retorna todos os resultados da busca).
 
 ## Como rodar os testes
