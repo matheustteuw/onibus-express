@@ -25,8 +25,7 @@ namespace OniBusExpress.Infrastructure.DataAccess.Configurations
                 .IsRequired()
                 .HasMaxLength(200);
 
-            builder.Property(passenger => passenger.BirthDate)
-                .IsRequired();
+            builder.Property(passenger => passenger.BirthDate);
         }
     }
 }
