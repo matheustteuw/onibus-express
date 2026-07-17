@@ -1,0 +1,15 @@
+.summary {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  max-width: 24rem;
+}
+
+.summary p {
+  margin: 0.25rem 0;
+}
+
+.price {
+  font-weight: 700;
+}
