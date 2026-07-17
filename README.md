@@ -137,7 +137,6 @@ Frontend:
 
 - Autenticação/autorização (não fazia parte do escopo pedido).
 - Testes de integração com banco real (SQLite in-memory ou TestContainers) no backend. Optei por testes unitários com repositórios mockados, que já cobrem os 4 pontos pedidos pelo desafio.
-- **Testes do frontend** (componente de busca, mapa de assentos, validação do formulário) — ainda não escritos.
 - **Docker do frontend** (Nginx servindo o build) e a integração dele no `docker-compose.yml` — ainda não feito. Hoje o frontend só roda via `npm run dev`.
 - Cadastro de rotas/viagens via API (o desafio só pede leitura desses recursos — populei via seed).
 - Paginação em `GET /viagens` (hoje retorna todos os resultados da busca).
@@ -152,7 +151,14 @@ dotnet test
 
 Cobre: validação de CPF (formato e dígito verificador), regra de assento já ocupado, regra de cancelamento dentro do prazo, e geração de código de reserva único (incluindo o retry quando o código gerado já existe).
 
-Frontend: ainda não implementado (ver "O que ficou de fora").
+Frontend:
+
+```bash
+cd src/Frontend/onibus-express-web
+npm test
+```
+
+Cobre: preenchimento e busca na tela de busca (incluindo o caso sem resultados), seleção e bloqueio de assento no mapa de assentos, e validação do formulário de passageiro (campos obrigatórios, CPF inválido, submissão com dados válidos). Usa React Testing Library com foco em comportamento do usuário — a API é mockada nos testes que dependem dela.
 
 ## Endpoints
 
@@ -169,7 +175,7 @@ Documentação interativa via Swagger em `/swagger` (só ativo em ambiente Devel
 
 ## Pontos de melhoria com mais tempo
 
-- Testes do frontend (busca, mapa de assentos, validação do formulário) e testes de integração do backend com banco real.
+- Testes de integração do backend com banco real (TestContainers).
 - Docker do frontend e `docker-compose.yml` unificado subindo API + banco + frontend com um único comando.
 - Paginação e ordenação em `GET /viagens`.
 - Endpoint de cadastro de rotas/viagens, caso o sistema precise ser administrado sem acesso direto ao banco.
