@@ -33,6 +33,10 @@ namespace OniBusExpress.Infrastructure.DataAccess.Configurations
             builder.HasIndex(reservation => new { reservation.TripId, reservation.SeatNumber })
                 .IsUnique()
                 .HasFilter($"[Status] = {(int)ReservationStatus.Active}");
+
+            builder.HasIndex(reservation => new { reservation.TripId, reservation.PassengerId })
+                .IsUnique()
+                .HasFilter($"[Status] = {(int)ReservationStatus.Active}");
         }
     }
 }

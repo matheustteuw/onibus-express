@@ -63,6 +63,10 @@ namespace OniBusExpress.Application.UseCases.Reservation.Register
 
             var passengerId = await ResolvePassenger(request);
 
+            var passengerAlreadyHasReservation = await _reservationReadRepository.ExistsActiveReservationForPassenger(trip.Id, passengerId);
+            if (passengerAlreadyHasReservation)
+                throw new ConflictException(ResourceMessagesException.PASSENGER_ALREADY_HAS_RESERVATION_ON_TRIP);
+
             var reservation = new Domain.Entities.Reservation
             {
                 Id = Guid.NewGuid(),

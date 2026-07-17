@@ -23,6 +23,14 @@ namespace OniBusExpress.Infrastructure.DataAccess.Repositories
                 reservation.Status == ReservationStatus.Active);
         }
 
+        public async Task<bool> ExistsActiveReservationForPassenger(Guid tripId, Guid passengerId)
+        {
+            return await _dbContext.Reservations.AnyAsync(reservation =>
+                reservation.TripId == tripId &&
+                reservation.PassengerId == passengerId &&
+                reservation.Status == ReservationStatus.Active);
+        }
+
         public async Task<bool> ExistsReservationWithCode(string reservationCode)
         {
             return await _dbContext.Reservations.AnyAsync(reservation => reservation.ReservationCode == reservationCode);

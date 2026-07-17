@@ -141,6 +141,9 @@
   <data name="RESERVATION_NOT_FOUND" xml:space="preserve">
     <value>Reserva não encontrada.</value>
   </data>
+  <data name="PASSENGER_ALREADY_HAS_RESERVATION_ON_TRIP" xml:space="preserve">
+    <value>Este passageiro já possui uma reserva ativa nesta viagem.</value>
+  </data>
   <data name="SEAT_ALREADY_TAKEN" xml:space="preserve">
     <value>O assento selecionado já está ocupado.</value>
   </data>

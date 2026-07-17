@@ -133,6 +133,15 @@ namespace OniBusExpress.Exceptions {
         }
         
         /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a Este passageiro já possui uma reserva ativa nesta viagem..
+        /// </summary>
+        public static string PASSENGER_ALREADY_HAS_RESERVATION_ON_TRIP {
+            get {
+                return ResourceManager.GetString("PASSENGER_ALREADY_HAS_RESERVATION_ON_TRIP", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Consulta uma cadeia de caracteres localizada semelhante a O assento selecionado já está ocupado..
         /// </summary>
         public static string SEAT_ALREADY_TAKEN {
