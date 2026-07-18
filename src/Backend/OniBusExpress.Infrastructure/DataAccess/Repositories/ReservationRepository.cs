@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using OniBusExpress.Domain.Entities;
 using OniBusExpress.Domain.Enums;
 using OniBusExpress.Domain.Repositories.Reservation;
 
@@ -10,10 +11,7 @@ namespace OniBusExpress.Infrastructure.DataAccess.Repositories
 
         public ReservationRepository(OniBusExpressDbContext dbContext) => _dbContext = dbContext;
 
-        public async Task Add(Domain.Entities.Reservation reservation)
-        {
-            await _dbContext.Reservations.AddAsync(reservation);
-        }
+        public async Task Add(Reservation reservation) => await _dbContext.Reservations.AddAsync(reservation);
 
         public async Task<bool> ExistsActiveReservationForSeat(Guid tripId, int seatNumber)
         {
@@ -36,7 +34,7 @@ namespace OniBusExpress.Infrastructure.DataAccess.Repositories
             return await _dbContext.Reservations.AnyAsync(reservation => reservation.ReservationCode == reservationCode);
         }
 
-        async Task<Domain.Entities.Reservation?> IReservationReadOnlyRepository.GetByCode(string reservationCode)
+        async Task<Reservation?> IReservationReadOnlyRepository.GetByCode(string reservationCode)
         {
             return await _dbContext
                 .Reservations
@@ -46,7 +44,7 @@ namespace OniBusExpress.Infrastructure.DataAccess.Repositories
                     .ThenInclude(trip => trip.Route)
                 .FirstOrDefaultAsync(reservation => reservation.ReservationCode == reservationCode);
         }
-        async Task<Domain.Entities.Reservation?> IReservationUpdateOnlyRepository.GetByCode(string reservationCode)
+        async Task<Reservation?> IReservationUpdateOnlyRepository.GetByCode(string reservationCode)
         {
             return await _dbContext
                 .Reservations
@@ -54,9 +52,7 @@ namespace OniBusExpress.Infrastructure.DataAccess.Repositories
                 .FirstOrDefaultAsync(reservation => reservation.ReservationCode == reservationCode);
         }
 
-        public void Update(Domain.Entities.Reservation reservation)
-        {
-            _dbContext.Reservations.Update(reservation);
-        }
+        public void Update(Reservation reservation) => _dbContext.Reservations.Update(reservation);
+
     }
 }

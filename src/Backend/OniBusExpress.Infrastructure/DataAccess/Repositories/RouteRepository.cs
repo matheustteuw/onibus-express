@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using OniBusExpress.Domain.Entities;
 using OniBusExpress.Domain.Repositories.Route;
 
 namespace OniBusExpress.Infrastructure.DataAccess.Repositories
@@ -9,7 +10,7 @@ namespace OniBusExpress.Infrastructure.DataAccess.Repositories
 
         public RouteRepository(OniBusExpressDbContext dbContext) => _dbContext = dbContext;
 
-        public async Task<IList<Domain.Entities.Route>> GetAll()
+        public async Task<IList<Route>> GetAll()
         {
             return await _dbContext
                 .Routes

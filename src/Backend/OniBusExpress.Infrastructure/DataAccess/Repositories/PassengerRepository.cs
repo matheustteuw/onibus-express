@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using OniBusExpress.Domain.Entities;
 using OniBusExpress.Domain.Repositories.Passenger;
 
 namespace OniBusExpress.Infrastructure.DataAccess.Repositories
@@ -9,7 +10,7 @@ namespace OniBusExpress.Infrastructure.DataAccess.Repositories
 
         public PassengerRepository(OniBusExpressDbContext dbContext) => _dbContext = dbContext;
 
-        public async Task<Domain.Entities.Passenger?> GetByCpf(string cpf)
+        public async Task<Passenger?> GetByCpf(string cpf)
         {
             return await _dbContext
                 .Passengers
@@ -17,9 +18,6 @@ namespace OniBusExpress.Infrastructure.DataAccess.Repositories
                 .FirstOrDefaultAsync(passenger => passenger.Cpf == cpf);
         }
 
-        public async Task Add(Domain.Entities.Passenger passenger)
-        {
-            await _dbContext.Passengers.AddAsync(passenger);
-        }
+        public async Task Add(Passenger passenger) => await _dbContext.Passengers.AddAsync(passenger);
     }
 }
