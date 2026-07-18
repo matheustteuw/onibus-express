@@ -8,7 +8,7 @@ using OniBusExpress.Infrastructure.DataAccess;
 
 #nullable disable
 
-namespace OniBusExpress.Infrastructure.DataAccess.Migrations
+namespace OniBusExpress.Infrastructure.Migrations
 {
     [DbContext(typeof(OniBusExpressDbContext))]
     partial class OniBusExpressDbContextModelSnapshot : ModelSnapshot

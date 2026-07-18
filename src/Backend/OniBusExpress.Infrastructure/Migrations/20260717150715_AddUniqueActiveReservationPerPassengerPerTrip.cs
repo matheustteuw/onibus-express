@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace OniBusExpress.Infrastructure.DataAccess.Migrations
+namespace OniBusExpress.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class AddUniqueActiveReservationPerPassengerPerTrip : Migration
