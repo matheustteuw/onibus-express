@@ -8,6 +8,24 @@ Backend em .NET e frontend em React, no mesmo repositório.
 
 ## Como rodar
 
+### Configurar o envio de e-mail (opcional)
+
+A API envia um e-mail de confirmação para quem fez a reserva. Copie `.env.example` para `.env` na raiz do projeto e preencha com as credenciais SMTP:
+
+```bash
+cp .env.example .env
+```
+
+```
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=seu-email@gmail.com
+SMTP_PASS=sua-app-password-do-gmail
+EMAIL_FROM=seu-email@gmail.com
+```
+
+Usando Gmail, `SMTP_PASS` precisa ser uma [App Password](https://myaccount.google.com/apppasswords) (exige 2FA ativo na conta), não a senha normal da conta. O `.env` é ignorado pelo git — nunca comite credenciais reais. Se essas variáveis não forem configuradas, a reserva continua funcionando normalmente; só o envio do e-mail é pulado (o erro fica registrado no log da API).
+
 ### Com Docker (recomendado)
 
 Pré-requisito: Docker Desktop instalado e rodando.
@@ -16,7 +34,7 @@ Pré-requisito: Docker Desktop instalado e rodando.
 docker-compose up --build
 ```
 
-Sobe os três containers: `db` (SQL Server 2022), `api` e `web` (frontend servido por Nginx). A API espera o banco ficar saudável (healthcheck), aplica as migrations e popula rotas/viagens de exemplo automaticamente ao iniciar. Não precisa rodar nenhum comando extra.
+Sobe os três containers: `db` (SQL Server 2022), `api` e `web` (frontend servido por Nginx). A API espera o banco ficar saudável (healthcheck), aplica as migrations e popula rotas/viagens de exemplo automaticamente ao iniciar. As variáveis do `.env` na raiz são repassadas automaticamente para o container da API. Não precisa rodar nenhum comando extra.
 
 - App: http://localhost:3000
 - API: http://localhost:8080
@@ -37,7 +55,7 @@ dotnet ef database update --project src/Backend/OniBusExpress.Infrastructure --s
 dotnet run --project src/Backend/OniBusExpress.API
 ```
 
-Ajuste a connection string em `appsettings.json` para o seu SQL Server local.
+Ajuste a connection string em `appsettings.json` para o seu SQL Server local. Fora do Docker, as variáveis de e-mail (`SMTP_HOST` etc.) precisam ser exportadas no ambiente antes de rodar, já que o `dotnet run` não lê o `.env` automaticamente.
 
 ### Frontend
 
@@ -62,6 +80,7 @@ O frontend consome a API via a variável `VITE_API_BASE_URL` (arquivo `.env`, j�
 - **AutoMapper** — mapeamento entre entidades de domínio e os DTOs de request/response, evitando código repetitivo de conversão.
 - **FluentValidation** — validação dos dados de entrada (CPF, campos obrigatórios) de forma declarativa, separada da lógica de negócio.
 - **Swashbuckle (Swagger)** — documentação e exploração interativa dos endpoints.
+- **SmtpClient (System.Net.Mail)** — envio do e-mail de confirmação de reserva via SMTP (Gmail), sem dependência externa nova.
 - **xUnit + Moq + FluentAssertions** — testes unitários. Moq isola os use cases dos repositórios reais; FluentAssertions deixa as asserções mais legíveis.
 - **Docker + docker-compose** — sobe API, banco e frontend com um único comando.
 
@@ -125,6 +144,7 @@ Backend:
 - Os 6 endpoints pedidos: `GET /rotas`, `GET /viagens`, `GET /viagens/{id}`, `POST /reservas`, `GET /reservas/{codigo}`, `DELETE /reservas/{codigo}`.
 - Todas as regras de negócio do desafio: assento ocupado, viagem já realizada, validação de CPF com dígito verificador, código de reserva único e legível (`ABC-12345`), cancelamento até 2h antes da partida.
 - Regra extra: um mesmo passageiro não pode ter duas reservas ativas na mesma viagem.
+- E-mail de confirmação enviado para quem fez a reserva, com código, trajeto, data/hora de partida e assento. Falha no envio não derruba a reserva (já commitada) — fica só registrada no log.
 - Seed automático de rotas e viagens ao iniciar a aplicação (banco vazio), para dar dados de teste sem precisar de um endpoint de cadastro de rota/viagem (o desafio não pede isso).
 - Testes unitários dos 4 pontos pedidos no desafio.
 - Docker Compose com API + SQL Server + migration automática.
@@ -179,7 +199,6 @@ Documentação interativa via Swagger em `/swagger` (só ativo em ambiente Devel
 
 ## Pontos de melhoria com mais tempo
 
-- Envio de e-mail para o usuário que realizou a reserva, com o código e detalhes da viagem.
 - Paginação e ordenação em `GET /viagens`.
 - Endpoint de cadastro de rotas/viagens, caso o sistema precise ser administrado sem acesso direto ao banco.
 - Observabilidade (logging estruturado, health check endpoint dedicado).

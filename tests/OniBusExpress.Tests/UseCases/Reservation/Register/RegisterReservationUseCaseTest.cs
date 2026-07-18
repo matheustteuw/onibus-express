@@ -9,9 +9,11 @@ using OniBusExpress.Domain.Repositories;
 using OniBusExpress.Domain.Repositories.Passenger;
 using OniBusExpress.Domain.Repositories.Reservation;
 using OniBusExpress.Domain.Repositories.Trip;
+using OniBusExpress.Domain.Services.EmailService;
 using OniBusExpress.Domain.Services.ReservationCodeGenerator;
 using OniBusExpress.Exceptions;
 using OniBusExpress.Exceptions.ExceptionsBase;
+using Microsoft.Extensions.Logging;
 using ReservationEntity = OniBusExpress.Domain.Entities.Reservation;
 
 namespace OniBusExpress.Tests.UseCases.Reservation.Register
@@ -25,6 +27,7 @@ namespace OniBusExpress.Tests.UseCases.Reservation.Register
         private readonly Mock<IPassengerWriteOnlyRepository> _passengerWriteRepository = new();
         private readonly Mock<IReservationCodeGenerator> _codeGenerator = new();
         private readonly Mock<IUnitOfWork> _unitOfWork = new();
+        private readonly Mock<IEmailService> _emailService = new();
         private readonly IMapper _mapper;
 
         public RegisterReservationUseCaseTest()
@@ -34,6 +37,11 @@ namespace OniBusExpress.Tests.UseCases.Reservation.Register
             _reservationWriteRepository.Setup(repository => repository.Add(It.IsAny<ReservationEntity>())).Returns(Task.CompletedTask);
             _passengerWriteRepository.Setup(repository => repository.Add(It.IsAny<Passenger>())).Returns(Task.CompletedTask);
             _unitOfWork.Setup(unitOfWork => unitOfWork.Commit()).Returns(Task.CompletedTask);
+
+            _emailService
+                .Setup(service => service.SendReservationConfirmation(
+                    It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<int>()))
+                .Returns(Task.CompletedTask);
         }
 
         [Fact]
@@ -89,7 +97,9 @@ namespace OniBusExpress.Tests.UseCases.Reservation.Register
                 _passengerWriteRepository.Object,
                 _codeGenerator.Object,
                 _unitOfWork.Object,
-                _mapper);
+                _mapper,
+                _emailService.Object,
+                new Mock<ILogger<RegisterReservationUseCase>>().Object);
         }
 
         private static Trip BuildTrip()
@@ -99,7 +109,14 @@ namespace OniBusExpress.Tests.UseCases.Reservation.Register
                 Id = Guid.NewGuid(),
                 DepartureTime = DateTime.UtcNow.AddDays(1),
                 BasePrice = 100m,
-                TotalSeats = 40
+                TotalSeats = 40,
+                Route = new Route
+                {
+                    Id = Guid.NewGuid(),
+                    Origin = "São Paulo",
+                    Destination = "Rio de Janeiro",
+                    EstimatedDuration = TimeSpan.FromHours(6)
+                }
             };
         }
 

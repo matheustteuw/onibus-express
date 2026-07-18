@@ -6,6 +6,7 @@ using OniBusExpress.Domain.Repositories.Passenger;
 using OniBusExpress.Domain.Repositories.Reservation;
 using OniBusExpress.Domain.Repositories.Route;
 using OniBusExpress.Domain.Repositories.Trip;
+using OniBusExpress.Domain.Services.EmailService;
 using OniBusExpress.Domain.Services.ReservationCodeGenerator;
 using OniBusExpress.Infrastructure.DataAccess;
 using OniBusExpress.Infrastructure.DataAccess.Repositories;
@@ -19,6 +20,7 @@ namespace OniBusExpress.Infrastructure
             AddDbContext(services, configuration);
             AddRepositories(services);
             AddServices(services);
+            AddEmailService(services);
         }
 
         private static void AddDbContext(IServiceCollection services, IConfiguration configuration)
@@ -47,6 +49,11 @@ namespace OniBusExpress.Infrastructure
         private static void AddServices(IServiceCollection services)
         {
             services.AddScoped<IReservationCodeGenerator, Services.ReservationCodeGenerator.ReservationCodeGenerator>();
+        }
+
+        private static void AddEmailService(IServiceCollection services)
+        {
+            services.AddScoped<IEmailService, Services.EmailService.EmailService>();
         }
     }
 }

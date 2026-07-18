@@ -7,9 +7,11 @@ using OniBusExpress.Domain.Repositories;
 using OniBusExpress.Domain.Repositories.Passenger;
 using OniBusExpress.Domain.Repositories.Reservation;
 using OniBusExpress.Domain.Repositories.Trip;
+using OniBusExpress.Domain.Services.EmailService;
 using OniBusExpress.Domain.Services.ReservationCodeGenerator;
 using OniBusExpress.Exceptions;
 using OniBusExpress.Exceptions.ExceptionsBase;
+using Microsoft.Extensions.Logging;
 
 namespace OniBusExpress.Application.UseCases.Reservation.Register
 {
@@ -23,6 +25,8 @@ namespace OniBusExpress.Application.UseCases.Reservation.Register
         private readonly IReservationCodeGenerator _codeGenerator;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IEmailService _emailService;
+        private readonly ILogger<RegisterReservationUseCase> _logger;
 
         public RegisterReservationUseCase(
             ITripReadOnlyRepository tripRepository,
@@ -32,7 +36,9 @@ namespace OniBusExpress.Application.UseCases.Reservation.Register
             IPassengerWriteOnlyRepository passengerWriteRepository,
             IReservationCodeGenerator codeGenerator,
             IUnitOfWork unitOfWork,
-            IMapper mapper)
+            IMapper mapper,
+            IEmailService emailService,
+            ILogger<RegisterReservationUseCase> logger)
         {
             _tripRepository = tripRepository;
             _reservationReadRepository = reservationReadRepository;
@@ -42,6 +48,8 @@ namespace OniBusExpress.Application.UseCases.Reservation.Register
             _codeGenerator = codeGenerator;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _emailService = emailService;
+            _logger = logger;
         }
 
         public async Task<ResponseRegisteredReservationJson> Execute(RequestRegisterReservationJson request)
@@ -82,6 +90,8 @@ namespace OniBusExpress.Application.UseCases.Reservation.Register
 
             await _unitOfWork.Commit();
 
+            await SendConfirmationEmail(request.Email, request.PassengerName, reservation, trip);
+
             return _mapper.Map<ResponseRegisteredReservationJson>(reservation);
         }
 
@@ -99,6 +109,25 @@ namespace OniBusExpress.Application.UseCases.Reservation.Register
             await _passengerWriteRepository.Add(passenger);
 
             return passenger.Id;
+        }
+
+        private async Task SendConfirmationEmail(string toEmail, string passengerName, Domain.Entities.Reservation reservation, Domain.Entities.Trip trip)
+        {
+            try
+            {
+                await _emailService.SendReservationConfirmation(
+                    toEmail,
+                    passengerName,
+                    reservation.ReservationCode,
+                    trip.Route.Origin,
+                    trip.Route.Destination,
+                    trip.DepartureTime,
+                    reservation.SeatNumber);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Falha ao enviar e-mail de confirmação da reserva {ReservationCode} para {Email}", reservation.ReservationCode, toEmail);
+            }
         }
 
         private async Task<string> GenerateUniqueReservationCode()
