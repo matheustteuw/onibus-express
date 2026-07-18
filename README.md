@@ -8,24 +8,6 @@ Backend em .NET e frontend em React, no mesmo repositório.
 
 ## Como rodar
 
-### Configurar o envio de e-mail (opcional)
-
-A API envia um e-mail de confirmação para quem fez a reserva. Copie `.env.example` para `.env` na raiz do projeto e preencha com as credenciais SMTP:
-
-```bash
-cp .env.example .env
-```
-
-```
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=seu-email@gmail.com
-SMTP_PASS=sua-app-password-do-gmail
-EMAIL_FROM=seu-email@gmail.com
-```
-
-Usando Gmail, `SMTP_PASS` precisa ser uma [App Password](https://myaccount.google.com/apppasswords) (exige 2FA ativo na conta), não a senha normal da conta. O `.env` é ignorado pelo git — nunca comite credenciais reais. Se essas variáveis não forem configuradas, a reserva continua funcionando normalmente; só o envio do e-mail é pulado (o erro fica registrado no log da API).
-
 ### Com Docker (recomendado)
 
 Pré-requisito: Docker Desktop instalado e rodando.
@@ -55,7 +37,23 @@ dotnet ef database update --project src/Backend/OniBusExpress.Infrastructure --s
 dotnet run --project src/Backend/OniBusExpress.API
 ```
 
-Ajuste a connection string em `appsettings.json` para o seu SQL Server local. Fora do Docker, as variáveis de e-mail (`SMTP_HOST` etc.) precisam ser exportadas no ambiente antes de rodar, já que o `dotnet run` não lê o `.env` automaticamente.
+Ajuste a connection string em `appsettings.json` para o seu SQL Server local.
+
+### Envio de e-mail (opcional)
+
+Adicionei por conta própria, não fazia parte do desafio. A API envia um e-mail de confirmação para quem fez a reserva, se as credenciais SMTP estiverem configuradas. Copie `.env.example` para `.env` na raiz do projeto e preencha:
+
+```bash
+cp .env.example .env
+```
+
+```
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=seu-email@gmail.com
+SMTP_PASS=sua-app-password-do-gmail
+EMAIL_FROM=seu-email@gmail.com
+```
 
 ### Frontend
 
